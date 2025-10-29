@@ -8,6 +8,11 @@
 ## 📋 Table of Contents
 
 - [What is This?](#what-is-this)
+- [Architecture Overview](#architecture-overview)
+  - [System Architecture](#system-architecture)
+  - [Request Flow Sequence](#request-flow-sequence)
+  - [Component Deployment](#component-deployment)
+  - [Cost Comparison](#cost-comparison)
 - [Quick Start](#quick-start)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -32,6 +37,194 @@
 - Cost comparison between different AI models
 - Experimenting with bilingual AI (excellent Chinese + English support)
 - Local AI development and testing
+
+## Architecture Overview
+
+### System Architecture
+
+```mermaid
+graph TB
+    subgraph "Local Machine"
+        User[👤 User]
+        CLI[🖥️ CLI Scripts<br/>claude-glm / claude-glm-bash]
+        Proxy[🔄 LiteLLM Proxy<br/>localhost:8000]
+        Config[⚙️ config.yaml<br/>Model Mapping]
+        Env[🔑 .env<br/>API Key]
+    end
+
+    subgraph "Remote Services"
+        OR[🌐 OpenRouter API<br/>openrouter.ai]
+        GLM[🤖 GLM-4.6 Model<br/>Zhipu AI via Novita]
+    end
+
+    User -->|"claude-glm 'prompt'"| CLI
+    CLI -->|HTTP POST<br/>Bearer: glm-proxy-key| Proxy
+    Proxy -->|Read mapping| Config
+    Proxy -->|Read key| Env
+    Proxy -->|OpenAI format<br/>Model: claude-3-5-sonnet| OR
+    OR -->|Route to| GLM
+    GLM -->|Response| OR
+    OR -->|Response| Proxy
+    Proxy -->|JSON| CLI
+    CLI -->|Display| User
+
+    style User fill:#e1f5ff
+    style CLI fill:#fff3cd
+    style Proxy fill:#d4edda
+    style OR fill:#f8d7da
+    style GLM fill:#d1ecf1
+```
+
+### Request Flow Sequence
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant Script as CLI Script<br/>(claude-glm)
+    participant Proxy as LiteLLM Proxy<br/>(localhost:8000)
+    participant Config as config.yaml
+    participant OpenRouter
+    participant GLM as GLM-4.6
+
+    User->>Script: ./bin/claude-glm "Write Python code"
+
+    rect rgb(240, 240, 240)
+        Note over Script: Health Check
+        Script->>Proxy: GET /health
+        Proxy-->>Script: 200 OK
+    end
+
+    rect rgb(230, 255, 230)
+        Note over Script,Proxy: Send Request
+        Script->>Proxy: POST /v1/chat/completions<br/>Authorization: Bearer glm-proxy-key<br/>Model: claude-3-5-sonnet-20241022
+        Proxy->>Config: Read model mapping
+        Config-->>Proxy: Map to openrouter/z-ai/glm-4.6
+        Proxy->>Proxy: Load OPENROUTER_API_KEY
+    end
+
+    rect rgb(255, 240, 240)
+        Note over Proxy,GLM: External API Call
+        Proxy->>OpenRouter: POST /api/v1/chat/completions<br/>Model: z-ai/glm-4.6<br/>API Key: sk-or-v1-...
+        OpenRouter->>GLM: Route request
+        GLM->>GLM: Generate response
+        GLM-->>OpenRouter: Response + reasoning_content
+        OpenRouter-->>Proxy: JSON response
+    end
+
+    rect rgb(240, 240, 255)
+        Note over Script,User: Return to User
+        Proxy-->>Script: JSON response
+        Script->>Script: jq parse: .choices[0].message.content
+        Script-->>User: Display formatted text
+    end
+```
+
+### Component Deployment
+
+```mermaid
+graph LR
+    subgraph Local["🖥️ Local Machine (Your Computer)"]
+        subgraph Shell["Terminal Session"]
+            CMD[Command<br/>claude-glm 'prompt']
+        end
+
+        subgraph Scripts["bin/ Directory"]
+            Fish[Fish Scripts<br/>claude-glm<br/>start-proxy<br/>stop-proxy]
+            Bash[Bash Scripts<br/>claude-glm-bash<br/>start-proxy-bash<br/>stop-proxy-bash]
+        end
+
+        subgraph Runtime["Background Process"]
+            Lit[LiteLLM Server<br/>:8000<br/>PID: logs/proxy.pid]
+        end
+
+        subgraph Storage["Configuration"]
+            YML[config.yaml<br/>Model mappings]
+            ENV[.env<br/>API credentials]
+            LOG[logs/<br/>proxy.log]
+        end
+    end
+
+    subgraph Cloud["☁️ Cloud Services"]
+        Router[OpenRouter<br/>API Gateway]
+        Model[GLM-4.6<br/>Inference Server]
+    end
+
+    CMD --> Fish
+    CMD --> Bash
+    Fish --> Lit
+    Bash --> Lit
+    Lit --> YML
+    Lit --> ENV
+    Lit --> LOG
+    Lit -->|HTTPS| Router
+    Router -->|Internal| Model
+
+    style Local fill:#f0f8ff
+    style Cloud fill:#fff5f5
+    style Lit fill:#d4edda
+    style Router fill:#ffeaa7
+    style Model fill:#74b9ff
+```
+
+### Cost Comparison
+
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#e1f5ff','primaryTextColor':'#000','primaryBorderColor':'#0066cc','lineColor':'#666','secondaryColor':'#d4edda','tertiaryColor':'#fff3cd'}}}%%
+graph TB
+    subgraph Costs["💰 Cost per 1M Tokens (Approximate)"]
+        direction LR
+
+        subgraph Claude["Claude 3.5 Sonnet<br/>(via Anthropic)"]
+            C_In["Input: $3.00"]
+            C_Out["Output: $15.00"]
+        end
+
+        subgraph GLM["GLM-4.6<br/>(via OpenRouter)"]
+            G_In["Input: $0.30"]
+            G_Out["Output: $1.20"]
+        end
+    end
+
+    subgraph Example["📊 Example Usage: 100K Input + 20K Output Tokens"]
+        direction TB
+
+        Claude_Total["Claude Total<br/>100K × $3/1M + 20K × $15/1M<br/><b>= $0.60</b>"]
+        GLM_Total["GLM-4.6 Total<br/>100K × $0.30/1M + 20K × $1.20/1M<br/><b>= $0.054</b>"]
+        Savings["💵 Savings: <b>$0.546 (91%)</b>"]
+
+        Claude_Total -.->|vs| GLM_Total
+        GLM_Total --> Savings
+    end
+
+    subgraph Monthly["📅 Monthly Estimate (1M Input + 200K Output)"]
+        direction TB
+
+        M_Claude["Claude: $33.00/month"]
+        M_GLM["GLM-4.6: $2.94/month"]
+        M_Save["💰 Save: <b>$30.06/month</b><br/><b>$360/year</b>"]
+
+        M_Claude -.->|vs| M_GLM
+        M_GLM --> M_Save
+    end
+
+    style Claude fill:#ffeaa7
+    style GLM fill:#55efc4
+    style Savings fill:#00b894
+    style M_Save fill:#00b894
+    style Claude_Total fill:#ffeaa7
+    style GLM_Total fill:#55efc4
+    style M_Claude fill:#ffeaa7
+    style M_GLM fill:#55efc4
+```
+
+**Key Takeaways:**
+- 💸 **~90% cost reduction** compared to Claude 3.5 Sonnet
+- 🎯 **Best for**: High-volume use cases, experimentation, development/testing
+- ⚡ **Quality**: GLM-4.6 offers comparable performance for many tasks
+- 🌍 **Bonus**: Excellent bilingual support (English + Chinese)
+
+> **Note**: Costs are approximate and based on OpenRouter pricing as of Oct 2024. Check [openrouter.ai/models](https://openrouter.ai/models) for current rates.
 
 ## Quick Start
 
