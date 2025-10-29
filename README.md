@@ -126,31 +126,22 @@ sequenceDiagram
 ### Component Deployment
 
 ```mermaid
-graph LR
-    subgraph Local["🖥️ Local Machine (Your Computer)"]
-        subgraph Shell["Terminal Session"]
-            CMD[Command<br/>claude-glm 'prompt']
-        end
-
-        subgraph Scripts["bin/ Directory"]
-            Fish[Fish Scripts<br/>claude-glm<br/>start-proxy<br/>stop-proxy]
-            Bash[Bash Scripts<br/>claude-glm-bash<br/>start-proxy-bash<br/>stop-proxy-bash]
-        end
-
-        subgraph Runtime["Background Process"]
-            Lit[LiteLLM Server<br/>:8000<br/>PID: logs/proxy.pid]
-        end
-
-        subgraph Storage["Configuration"]
-            YML[config.yaml<br/>Model mappings]
-            ENV[.env<br/>API credentials]
-            LOG[logs/<br/>proxy.log]
-        end
+graph TB
+    subgraph Local["🖥️ Local Machine"]
+        direction LR
+        CMD["💻 Terminal<br/>claude-glm 'prompt'"]
+        Fish["🐟 Fish Scripts<br/>start-proxy<br/>claude-glm<br/>stop-proxy"]
+        Bash["🔷 Bash Scripts<br/>start-proxy-bash<br/>claude-glm-bash<br/>stop-proxy-bash"]
+        Lit["⚡ LiteLLM Proxy<br/>localhost:8000<br/>PID: logs/proxy.pid"]
+        YML["📄 config.yaml<br/>Model mappings"]
+        ENV["🔐 .env<br/>API credentials"]
+        LOG["📝 logs/<br/>proxy.log"]
     end
 
     subgraph Cloud["☁️ Cloud Services"]
-        Router[OpenRouter<br/>API Gateway]
-        Model[GLM-4.6<br/>Inference Server]
+        direction LR
+        Router["🌐 OpenRouter<br/>API Gateway"]
+        Model["🤖 GLM-4.6<br/>Inference Server"]
     end
 
     CMD --> Fish
@@ -163,14 +154,14 @@ graph LR
     Lit -->|HTTPS| Router
     Router -->|Internal| Model
 
-    style Local fill:#f0f8ff,color:#000
-    style Cloud fill:#fff5f5,color:#000
+    style Local fill:#f0f8ff,stroke:#0066cc,stroke-width:3px,color:#000
+    style Cloud fill:#fff5f5,stroke:#d9534f,stroke-width:3px,color:#000
     style CMD fill:#fff,stroke:#666,stroke-width:2px,color:#000
-    style Fish fill:#fff,stroke:#666,stroke-width:2px,color:#000
-    style Bash fill:#fff,stroke:#666,stroke-width:2px,color:#000
-    style Lit fill:#d4edda,stroke:#5cb85c,stroke-width:2px,color:#000
+    style Fish fill:#e3f2fd,stroke:#2196f3,stroke-width:2px,color:#000
+    style Bash fill:#e8eaf6,stroke:#5e35b1,stroke-width:2px,color:#000
+    style Lit fill:#d4edda,stroke:#5cb85c,stroke-width:3px,color:#000
     style YML fill:#fff,stroke:#666,stroke-width:2px,color:#000
-    style ENV fill:#fff,stroke:#666,stroke-width:2px,color:#000
+    style ENV fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000
     style LOG fill:#fff,stroke:#666,stroke-width:2px,color:#000
     style Router fill:#ffeaa7,stroke:#f0ad4e,stroke-width:2px,color:#000
     style Model fill:#74b9ff,stroke:#5bc0de,stroke-width:2px,color:#000
