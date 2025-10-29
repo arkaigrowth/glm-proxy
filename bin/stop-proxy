@@ -1,0 +1,10 @@
+#!/usr/bin/env fish
+cd (dirname (status -f))/..
+if test -f logs/proxy.pid
+    set pid (cat logs/proxy.pid)
+    kill $pid 2>/dev/null
+    rm logs/proxy.pid
+    echo "🛑 Proxy stopped"
+else
+    echo "❌ No proxy PID found"
+end

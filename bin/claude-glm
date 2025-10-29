@@ -1,0 +1,19 @@
+#!/usr/bin/env fish
+# Check if proxy is running
+if not curl -s http://localhost:8000/health >/dev/null 2>&1
+    echo "❌ GLM proxy not running. Start it with:"
+    echo "   ~/AI/claude-glm-proxy/bin/start-proxy"
+    exit 1
+end
+
+echo "🚀 Using GLM 4.6 via proxy..."
+
+# Call proxy directly with curl, format output nicely
+curl -s -X POST "http://localhost:8000/v1/chat/completions" \
+  -H "Authorization: Bearer glm-proxy-key" \
+  -H "Content-Type: application/json" \
+  -d (echo $argv | jq -R -s "{
+    \"model\": \"claude-3-5-sonnet-20241022\",
+    \"messages\": [{\"role\": \"user\", \"content\": .}],
+    \"max_tokens\": 4000
+  }") | jq -r ".choices[0].message.content"

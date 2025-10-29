@@ -1,0 +1,8 @@
+#!/usr/bin/env fish
+cd (dirname (status -f))/..
+echo "🚀 Starting GLM 4.6 proxy..."
+litellm --config config.yaml --port 8000 > logs/proxy.log 2>&1 &
+set proxy_pid $last_pid
+echo $proxy_pid > logs/proxy.pid
+echo "✅ Proxy started (PID: $proxy_pid)"
+echo "📋 Logs: tail -f ~/AI/claude-glm-proxy/logs/proxy.log"

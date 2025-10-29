@@ -1,0 +1,13 @@
+#!/usr/bin/env fish
+if not curl -s -H "Authorization: Bearer glm-proxy-key" http://localhost:8000/health >/dev/null 2>&1
+    echo "❌ GLM proxy not running"
+    exit 1
+end
+
+echo "🚀 Using GLM 4.6 via proxy..."
+
+set prompt (string join " " $argv)
+curl -s -X POST "http://localhost:8000/v1/chat/completions" \
+  -H "Authorization: Bearer glm-proxy-key" \
+  -H "Content-Type: application/json" \
+  -d "{\"model\":\"claude-3-5-sonnet-20241022\",\"messages\":[{\"role\":\"user\",\"content\":\"$prompt\"}],\"max_tokens\":4000}" | jq -r ".choices[0].message.content"

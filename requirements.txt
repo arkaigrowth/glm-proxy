@@ -1,0 +1,21 @@
+# ═══════════════════════════════════════════════════════
+# Claude GLM Proxy - Python Dependencies
+# ═══════════════════════════════════════════════════════
+#
+# Installation:
+#   pip install -r requirements.txt
+#
+# Or with virtual environment:
+#   python3 -m venv venv
+#   source venv/bin/activate  # On macOS/Linux
+#   pip install -r requirements.txt
+#
+# ═══════════════════════════════════════════════════════
+
+# LiteLLM - AI model proxy and router
+# Provides OpenAI-compatible API for routing to GLM-4.6 via OpenRouter
+litellm>=1.47.0
+
+# Optional: Enhanced logging and monitoring
+# Uncomment if you want detailed request/response logging
+# litellm[proxy]>=1.47.0

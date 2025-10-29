@@ -1,0 +1,3 @@
+#!/usr/bin/env fish
+set -x CLAUDE_CONFIG_PATH ~/.claude
+claude $argv
