@@ -68,16 +68,19 @@ graph TB
     Proxy -->|JSON| CLI
     CLI -->|Display| User
 
-    style User fill:#e1f5ff
-    style CLI fill:#fff3cd
-    style Proxy fill:#d4edda
-    style OR fill:#f8d7da
-    style GLM fill:#d1ecf1
+    style User fill:#e1f5ff,stroke:#0066cc,stroke-width:2px,color:#000
+    style CLI fill:#fff3cd,stroke:#f0ad4e,stroke-width:2px,color:#000
+    style Proxy fill:#d4edda,stroke:#5cb85c,stroke-width:2px,color:#000
+    style Config fill:#f0f0f0,stroke:#999,stroke-width:2px,color:#000
+    style Env fill:#f0f0f0,stroke:#999,stroke-width:2px,color:#000
+    style OR fill:#f8d7da,stroke:#d9534f,stroke-width:2px,color:#000
+    style GLM fill:#d1ecf1,stroke:#5bc0de,stroke-width:2px,color:#000
 ```
 
 ### Request Flow Sequence
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'actorTextColor':'#000', 'labelTextColor':'#000', 'loopTextColor':'#000', 'noteTextColor':'#000', 'activationBorderColor':'#666', 'signalColor':'#000', 'signalTextColor':'#000' }}}%%
 sequenceDiagram
     autonumber
     actor User
@@ -160,62 +163,65 @@ graph LR
     Lit -->|HTTPS| Router
     Router -->|Internal| Model
 
-    style Local fill:#f0f8ff
-    style Cloud fill:#fff5f5
-    style Lit fill:#d4edda
-    style Router fill:#ffeaa7
-    style Model fill:#74b9ff
+    style Local fill:#f0f8ff,color:#000
+    style Cloud fill:#fff5f5,color:#000
+    style CMD fill:#fff,stroke:#666,stroke-width:2px,color:#000
+    style Fish fill:#fff,stroke:#666,stroke-width:2px,color:#000
+    style Bash fill:#fff,stroke:#666,stroke-width:2px,color:#000
+    style Lit fill:#d4edda,stroke:#5cb85c,stroke-width:2px,color:#000
+    style YML fill:#fff,stroke:#666,stroke-width:2px,color:#000
+    style ENV fill:#fff,stroke:#666,stroke-width:2px,color:#000
+    style LOG fill:#fff,stroke:#666,stroke-width:2px,color:#000
+    style Router fill:#ffeaa7,stroke:#f0ad4e,stroke-width:2px,color:#000
+    style Model fill:#74b9ff,stroke:#5bc0de,stroke-width:2px,color:#000
 ```
 
 ### Cost Comparison
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#e1f5ff','primaryTextColor':'#000','primaryBorderColor':'#0066cc','lineColor':'#666','secondaryColor':'#d4edda','tertiaryColor':'#fff3cd'}}}%%
-graph TB
-    subgraph Costs["💰 Cost per 1M Tokens (Approximate)"]
-        direction LR
-
-        subgraph Claude["Claude 3.5 Sonnet<br/>(via Anthropic)"]
-            C_In["Input: $3.00"]
-            C_Out["Output: $15.00"]
-        end
-
-        subgraph GLM["GLM-4.6<br/>(via OpenRouter)"]
-            G_In["Input: $0.30"]
-            G_Out["Output: $1.20"]
-        end
+graph LR
+    subgraph Pricing["💰 Cost per 1M Tokens"]
+        C_In["Claude Input<br/>$3.00"]
+        C_Out["Claude Output<br/>$15.00"]
+        G_In["GLM Input<br/>$0.30"]
+        G_Out["GLM Output<br/>$1.20"]
     end
 
-    subgraph Example["📊 Example Usage: 100K Input + 20K Output Tokens"]
-        direction TB
-
-        Claude_Total["Claude Total<br/>100K × $3/1M + 20K × $15/1M<br/><b>= $0.60</b>"]
-        GLM_Total["GLM-4.6 Total<br/>100K × $0.30/1M + 20K × $1.20/1M<br/><b>= $0.054</b>"]
-        Savings["💵 Savings: <b>$0.546 (91%)</b>"]
-
-        Claude_Total -.->|vs| GLM_Total
-        GLM_Total --> Savings
+    subgraph Example["📊 Example: 100K In + 20K Out"]
+        Claude_Total["Claude Total<br/>$0.60"]
+        GLM_Total["GLM Total<br/>$0.054"]
+        Savings["💵 Savings<br/>$0.546<br/>(91%)"]
     end
 
-    subgraph Monthly["📅 Monthly Estimate (1M Input + 200K Output)"]
-        direction TB
-
-        M_Claude["Claude: $33.00/month"]
-        M_GLM["GLM-4.6: $2.94/month"]
-        M_Save["💰 Save: <b>$30.06/month</b><br/><b>$360/year</b>"]
-
-        M_Claude -.->|vs| M_GLM
-        M_GLM --> M_Save
+    subgraph Monthly["📅 Monthly: 1M In + 200K Out"]
+        M_Claude["Claude<br/>$33.00/mo"]
+        M_GLM["GLM<br/>$2.94/mo"]
+        M_Save["💰 Save<br/>$30/mo<br/>$360/yr"]
     end
 
-    style Claude fill:#ffeaa7
-    style GLM fill:#55efc4
-    style Savings fill:#00b894
-    style M_Save fill:#00b894
-    style Claude_Total fill:#ffeaa7
-    style GLM_Total fill:#55efc4
-    style M_Claude fill:#ffeaa7
-    style M_GLM fill:#55efc4
+    C_In -.-> Claude_Total
+    C_Out -.-> Claude_Total
+    G_In -.-> GLM_Total
+    G_Out -.-> GLM_Total
+    Claude_Total -.->|vs| GLM_Total
+    GLM_Total --> Savings
+
+    Claude_Total -.-> M_Claude
+    GLM_Total -.-> M_GLM
+    M_Claude -.->|vs| M_GLM
+    M_GLM --> M_Save
+
+    style C_In fill:#ffeaa7,stroke:#f0ad4e,stroke-width:2px,color:#000
+    style C_Out fill:#ffeaa7,stroke:#f0ad4e,stroke-width:2px,color:#000
+    style G_In fill:#55efc4,stroke:#00b894,stroke-width:2px,color:#000
+    style G_Out fill:#55efc4,stroke:#00b894,stroke-width:2px,color:#000
+    style Claude_Total fill:#ffeaa7,stroke:#f0ad4e,stroke-width:2px,color:#000
+    style GLM_Total fill:#55efc4,stroke:#00b894,stroke-width:2px,color:#000
+    style Savings fill:#00b894,stroke:#00875a,stroke-width:3px,color:#fff
+    style M_Claude fill:#ffeaa7,stroke:#f0ad4e,stroke-width:2px,color:#000
+    style M_GLM fill:#55efc4,stroke:#00b894,stroke-width:2px,color:#000
+    style M_Save fill:#00b894,stroke:#00875a,stroke-width:3px,color:#fff
 ```
 
 **Key Takeaways:**
