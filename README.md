@@ -169,59 +169,93 @@ graph TB
 
 ### Cost Comparison
 
-```mermaid
-%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#e1f5ff','primaryTextColor':'#000','primaryBorderColor':'#0066cc','lineColor':'#666','secondaryColor':'#d4edda','tertiaryColor':'#fff3cd'}}}%%
-graph LR
-    subgraph Pricing["💰 Cost per 1M Tokens"]
-        C_In["Claude Input<br/>$3.00"]
-        C_Out["Claude Output<br/>$15.00"]
-        G_In["GLM Input<br/>$0.30"]
-        G_Out["GLM Output<br/>$1.20"]
-    end
+> **Why this matters:** If you're using Claude heavily, GLM-4.6 can save you **thousands of dollars per year** while maintaining comparable quality for most tasks.
 
-    subgraph Example["📊 Example: 100K In + 20K Out"]
-        Claude_Total["Claude Total<br/>$0.60"]
-        GLM_Total["GLM Total<br/>$0.054"]
-        Savings["💵 Savings<br/>$0.546<br/>(91%)"]
-    end
+#### API Pricing Comparison (Per Million Tokens)
 
-    subgraph Monthly["📅 Monthly: 1M In + 200K Out"]
-        M_Claude["Claude<br/>$33.00/mo"]
-        M_GLM["GLM<br/>$2.94/mo"]
-        M_Save["💰 Save<br/>$30/mo<br/>$360/yr"]
-    end
+| Model | Input | Output | Context | Best For |
+|-------|-------|--------|---------|----------|
+| **Claude Sonnet 4.5** | $3.00 | $15.00 | 200K | Premium quality, complex reasoning |
+| **Claude Opus 4.1** | $15.00 | $75.00 | 200K | Maximum capability tasks |
+| **Claude Haiku 4.5** | $1.00 | $5.00 | 200K | Fast, simple tasks |
+| **GLM-4.6** (OpenRouter) | $0.40 | $1.75 | 200K | **Cost-optimized coding & reasoning** |
 
-    C_In -.-> Claude_Total
-    C_Out -.-> Claude_Total
-    G_In -.-> GLM_Total
-    G_Out -.-> GLM_Total
-    Claude_Total -.->|vs| GLM_Total
-    GLM_Total --> Savings
+**Savings vs Claude Sonnet:** ~87-93% cheaper
+**Savings vs Claude Opus:** ~97% cheaper
 
-    Claude_Total -.-> M_Claude
-    GLM_Total -.-> M_GLM
-    M_Claude -.->|vs| M_GLM
-    M_GLM --> M_Save
+---
 
-    style C_In fill:#ffeaa7,stroke:#f0ad4e,stroke-width:2px,color:#000
-    style C_Out fill:#ffeaa7,stroke:#f0ad4e,stroke-width:2px,color:#000
-    style G_In fill:#55efc4,stroke:#00b894,stroke-width:2px,color:#000
-    style G_Out fill:#55efc4,stroke:#00b894,stroke-width:2px,color:#000
-    style Claude_Total fill:#ffeaa7,stroke:#f0ad4e,stroke-width:2px,color:#000
-    style GLM_Total fill:#55efc4,stroke:#00b894,stroke-width:2px,color:#000
-    style Savings fill:#00b894,stroke:#00875a,stroke-width:3px,color:#fff
-    style M_Claude fill:#ffeaa7,stroke:#f0ad4e,stroke-width:2px,color:#000
-    style M_GLM fill:#55efc4,stroke:#00b894,stroke-width:2px,color:#000
-    style M_Save fill:#00b894,stroke:#00875a,stroke-width:3px,color:#fff
-```
+#### Real-World Monthly Cost Scenarios
 
-**Key Takeaways:**
-- 💸 **~90% cost reduction** compared to Claude 3.5 Sonnet
-- 🎯 **Best for**: High-volume use cases, experimentation, development/testing
-- ⚡ **Quality**: GLM-4.6 offers comparable performance for many tasks
-- 🌍 **Bonus**: Excellent bilingual support (English + Chinese)
+Assuming **80% input / 20% output** token split (typical for development work):
 
-> **Note**: Costs are approximate and based on OpenRouter pricing as of Oct 2024. Check [openrouter.ai/models](https://openrouter.ai/models) for current rates.
+##### Scenario 1: Light Developer (10M tokens/month)
+*~8M input + ~2M output*
+
+| Option | API Cost | Subscription | Total/Month | Annual Cost |
+|--------|----------|--------------|-------------|-------------|
+| **Claude Sonnet (API only)** | $54.00 | - | $54.00 | $648 |
+| **Claude Sonnet + Pro** | $54.00 | $20 | $74.00 | $888 |
+| **GLM-4.6 (OpenRouter)** | $6.70 | - | **$7.07*** | **$85** |
+| **💰 Annual Savings** | - | - | **$566-$803** | **87-90% cheaper** |
+
+##### Scenario 2: Active Developer (50M tokens/month)
+*~40M input + ~10M output*
+
+| Option | API Cost | Subscription | Total/Month | Annual Cost |
+|--------|----------|--------------|-------------|-------------|
+| **Claude Sonnet (API only)** | $270.00 | - | $270.00 | $3,240 |
+| **Claude Sonnet + Pro** | $270.00 | $20 | $290.00 | $3,480 |
+| **GLM-4.6 (OpenRouter)** | $33.50 | - | **$35.34*** | **$424** |
+| **💰 Annual Savings** | - | - | **$2,816-$3,056** | **87-89% cheaper** |
+
+##### Scenario 3: Heavy Team Usage (100M tokens/month)
+*~80M input + ~20M output*
+
+| Option | API Cost | Subscription | Total/Month | Annual Cost |
+|--------|----------|--------------|-------------|-------------|
+| **Claude Sonnet (API only)** | $540.00 | - | $540.00 | $6,480 |
+| **Claude Opus (API only)** | $2,700.00 | - | $2,700.00 | $32,400 |
+| **GLM-4.6 (OpenRouter)** | $67.00 | - | **$70.69*** | **$848** |
+| **💰 Annual Savings vs Sonnet** | - | - | **$5,632** | **87% cheaper** |
+| **💰 Annual Savings vs Opus** | - | - | **$31,552** | **97% cheaper** |
+
+*\*Includes 5.5% OpenRouter platform fee*
+
+---
+
+#### When to Use Each Model
+
+**✅ Use GLM-4.6 when:**
+- 💸 **Budget is a concern** - Save 87-97% vs Claude
+- 🚀 **High-volume usage** - Coding, testing, experimentation
+- 📊 **Good-enough quality** - 80-90% of Claude performance is sufficient
+- 🌍 **Bilingual needs** - Excellent Chinese + English support
+- 🔧 **Development/testing** - Pre-production work, prototyping
+
+**✅ Use Claude Sonnet/Opus when:**
+- 🎯 **Maximum accuracy required** - Critical production decisions
+- 💼 **Business-critical tasks** - High-stakes analysis, legal review
+- 🧠 **Complex reasoning** - Multi-step logical chains
+- 📝 **Premium writing** - Marketing copy, documentation
+- 🔒 **Need Claude-specific features** - Extended thinking, Projects, etc.
+
+---
+
+#### Cost Optimization Tips
+
+1. **Start with GLM-4.6** for development and testing
+2. **Switch to Claude** only for production or critical tasks
+3. **Use batch processing** (50% off) for non-urgent Claude requests
+4. **Monitor token usage** - GLM-4.6 uses ~15% fewer tokens than GLM-4.5
+5. **Leverage context window** - 200K tokens reduces multi-turn costs
+
+---
+
+> **Pricing current as of October 2025**
+> Claude pricing: [anthropic.com/pricing](https://anthropic.com/pricing)
+> GLM-4.6 pricing: [openrouter.ai/models](https://openrouter.ai/models)
+> *Prices subject to change - always verify current rates*
 
 ## Quick Start
 
